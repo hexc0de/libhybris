@@ -54,15 +54,15 @@ int android_dladdr(const void *addr, void *info);
 #define HYBRIS_DLSYSM(name, fptr, sym) \
     if (!name##_handle) \
     { \
-	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 1\n"); \
+	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 1\\n"); \
         hybris_##name##_initialize(); \
-	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 2\n"); \
+	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 2\\n"); \
     } \
     if (*(fptr) == NULL) \
     { \
-	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 3\n"); \
+	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 3\\n"); \
         *(fptr) = (void *) android_dlsym(name##_handle, sym); \
-	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 4\n"); \
+	    fprintf(stderr, "== binding: HYBRIS_DLSYSM: 4\\n"); \
     }
 
 #define HYBRIS_LIBRARY_INITIALIZE(name, path) \
