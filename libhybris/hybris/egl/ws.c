@@ -51,6 +51,7 @@ static void _init_ws()
 		}
 
 #ifdef PKGLIBDIR
+		fprintf(stderr, "== ws: _init_ws: 8: PKGLIBDIR=%s\n", PKGLIBDIR);
 		snprintf(ws_name, 2048, "%seglplatform_%s.so", PKGLIBDIR, egl_platform);
 #else
 		snprintf(ws_name, 2048, "eglplatform_%s.so", egl_platform);
