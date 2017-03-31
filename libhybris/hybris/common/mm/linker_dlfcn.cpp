@@ -115,8 +115,10 @@ void* android_dlopen(const char* filename, int flags) {
 }
 
 void* android_dlsym(void* handle, const char* symbol) {
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 1: %x, %s\n", handle, symbol);
   ScopedPthreadMutexLocker locker(&g_dl_mutex);
 
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 2\n");
 #if !defined(__LP64__)
   if (handle == nullptr) {
     __bionic_format_dlerror("dlsym library handle is null", nullptr);
@@ -124,32 +126,47 @@ void* android_dlsym(void* handle, const char* symbol) {
   }
 #endif
 
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 3\n");
   if (symbol == nullptr) {
+    fprintf(stderr, "== linker_dlfcn: android_dlsym: 4\n");
     __bionic_format_dlerror("dlsym symbol name is null", nullptr);
     return nullptr;
   }
 
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 5\n");
   soinfo* found = nullptr;
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 6\n");
   const ElfW(Sym)* sym = nullptr;
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 7\n");
   void* caller_addr = __builtin_return_address(0);
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 8\n");
   soinfo* caller = find_containing_library(caller_addr);
 
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 9\n");
   if (handle == RTLD_DEFAULT || handle == RTLD_NEXT) {
+    fprintf(stderr, "== linker_dlfcn: android_dlsym: 10\n");
     sym = dlsym_linear_lookup(symbol, &found, caller, handle);
   } else {
+    fprintf(stderr, "== linker_dlfcn: android_dlsym: 11\n");
     sym = dlsym_handle_lookup(reinterpret_cast<soinfo*>(handle), &found, symbol);
   }
 
+  fprintf(stderr, "== linker_dlfcn: android_dlsym: 12\n");
   if (sym != nullptr) {
+    fprintf(stderr, "== linker_dlfcn: android_dlsym: 13\n");
     unsigned bind = ELF_ST_BIND(sym->st_info);
 
+    fprintf(stderr, "== linker_dlfcn: android_dlsym: 14\n");
     if ((bind == STB_GLOBAL || bind == STB_WEAK) && sym->st_shndx != 0) {
+      fprintf(stderr, "== linker_dlfcn: android_dlsym: 15\n");
       return reinterpret_cast<void*>(found->resolve_symbol_address(sym));
     }
 
+    fprintf(stderr, "== linker_dlfcn: android_dlsym: 16\n");
     __bionic_format_dlerror("symbol found but not global", symbol);
     return nullptr;
   } else {
+    fprintf(stderr, "== linker_dlfcn: android_dlsym: 17\n");
     __bionic_format_dlerror("undefined symbol", symbol);
     return nullptr;
   }

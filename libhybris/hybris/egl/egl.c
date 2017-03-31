@@ -192,7 +192,7 @@ EGLDisplay eglGetDisplay(EGLNativeDisplayType display_id)
 	fprintf(stderr, "== egl: eglGetDisplay: 2\n");
 	EGLNativeDisplayType real_display;
 
-	fprintf(stderr, "== egl: eglGetDisplay: 3%x\n", _eglGetDisplay);
+	fprintf(stderr, "== egl: eglGetDisplay: 3:_eglGetDisplay=%x\n", _eglGetDisplay);
 	real_display = (*_eglGetDisplay)(display_id);//((EGLNativeDisplayType)0));//EGL_DEFAULT_DISPLAY);
 	fprintf(stderr, "== egl: eglGetDisplay: 4\n");
 	if (real_display == EGL_NO_DISPLAY)
