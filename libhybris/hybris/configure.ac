@@ -39,13 +39,13 @@ AC_CHECK_LIB(rt, clock_gettime, dummy=yes, AC_MSG_ERROR(librt is required))
 AC_ARG_ENABLE(debug,
   [  --enable-debug            Enable debug build (default=disabled)],
   [debug=$enableval],
-  [debug="no"])
+  [debug="yes"])
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 AC_ARG_ENABLE(trace,
   [  --enable-trace            Enable TRACE statements (default=disabled)],
   [trace=$enableval],
-  [trace="no"])
+  [trace="yes"])
 AM_CONDITIONAL( [WANT_TRACE], [test x"$trace" = x"yes"])
 
 AC_ARG_ENABLE(mesa,

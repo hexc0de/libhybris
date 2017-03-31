@@ -25,22 +25,36 @@ static struct ws_module *ws = NULL;
 
 static void _init_ws()
 {
+	fprintf(stderr, "== ws: _init_ws: 1\n");
 	if (ws == NULL)
 	{
+		fprintf(stderr, "== ws: _init_ws: 2\n");
 		char ws_name[2048];
+		fprintf(stderr, "== ws: _init_ws: 3\n");
 		char *egl_platform;
+		fprintf(stderr, "== ws: _init_ws: 4\n");
 
 		// Mesa uses EGL_PLATFORM for its own purposes.
 		// Add HYBRIS_EGLPLATFORM to avoid the conflicts
 		egl_platform=getenv("HYBRIS_EGLPLATFORM");
+		fprintf(stderr, "== ws: _init_ws: 5: env HYBRIS_EGLPLATFORM=%s\n", egl_platform);
 
-		if (egl_platform == NULL)
+		if (egl_platform == NULL) {
 			egl_platform=getenv("EGL_PLATFORM");
+			fprintf(stderr, "== ws: _init_ws: 6: env EGL_PLATFORM=%s\n", egl_platform);
+		}
 
-		if (egl_platform == NULL)
+		if (egl_platform == NULL) {
+			fprintf(stderr, "== ws: _init_ws: 7: no env values\n");
 			egl_platform = DEFAULT_EGL_PLATFORM;
+			fprintf(stderr, "== ws: _init_ws: 7: DEFAULT_EGL_PLATFORM=%s\n", egl_platform);
+		}
 
-		snprintf(ws_name, 2048, PKGLIBDIR "eglplatform_%s.so", egl_platform);
+#ifdef PKGLIBDIR
+		snprintf(ws_name, 2048, "%seglplatform_%s.so", PKGLIBDIR, egl_platform);
+#else
+		snprintf(ws_name, 2048, "eglplatform_%s.so", egl_platform);
+#endif
 
 		void *wsmod = (void *) dlopen(ws_name, RTLD_LAZY);
 		if (wsmod==NULL)

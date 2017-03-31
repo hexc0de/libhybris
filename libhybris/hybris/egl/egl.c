@@ -187,25 +187,39 @@ struct _EGLDisplay *hybris_egl_display_get_mapping(EGLDisplay display)
 
 EGLDisplay eglGetDisplay(EGLNativeDisplayType display_id)
 {
+	fprintf(stderr, "== egl: eglGetDisplay: 1\n");
 	HYBRIS_DLSYSM(egl, &_eglGetDisplay, "eglGetDisplay");
+	fprintf(stderr, "== egl: eglGetDisplay: 2\n");
 	EGLNativeDisplayType real_display;
 
+	fprintf(stderr, "== egl: eglGetDisplay: 3\n");
 	real_display = (*_eglGetDisplay)(EGL_DEFAULT_DISPLAY);
+	fprintf(stderr, "== egl: eglGetDisplay: 4\n");
 	if (real_display == EGL_NO_DISPLAY)
 	{
+		fprintf(stderr, "== egl: eglGetDisplay: 5: EGL_NO_DISPLAY\n");
 		return EGL_NO_DISPLAY;
 	}
 
+	fprintf(stderr, "== egl: eglGetDisplay: 6\n");
 	struct _EGLDisplay *dpy = hybris_egl_display_get_mapping(real_display);
+	fprintf(stderr, "== egl: eglGetDisplay: 7\n");
 	if (!dpy) {
+		fprintf(stderr, "== egl: eglGetDisplay: 8\n");
 		dpy = ws_GetDisplay(display_id);
+		fprintf(stderr, "== egl: eglGetDisplay: 9\n");
 		if (!dpy) {
+			fprintf(stderr, "== egl: eglGetDisplay: 10: !dpy: EGL_NO_DISPLAY\n");
 			return EGL_NO_DISPLAY;
 		}
+		fprintf(stderr, "== egl: eglGetDisplay: 11\n");
 		dpy->dpy = real_display;
+		fprintf(stderr, "== egl: eglGetDisplay: 12\n");
 		_addMapping(dpy);
+		fprintf(stderr, "== egl: eglGetDisplay: 13\n");
 	}
 
+	fprintf(stderr, "== egl: eglGetDisplay: 14\n");
 	return real_display;
 }
 
