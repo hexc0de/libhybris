@@ -2,4 +2,6 @@ RPMS/
 installroot/
 libhybris/hybris/tests/test_hwcomposer
 libhybris/hybris/tests/test_vibrator
-
+libhybris/.idea/
+libhybris/CMakeLists.txt
+libhybris/cmake-build-debug/
