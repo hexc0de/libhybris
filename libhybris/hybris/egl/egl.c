@@ -121,18 +121,25 @@ static __eglMustCastToProperFunctionPointerType (*_eglGetProcAddress)(const char
 
 static void _init_androidegl()
 {
+	fprintf(stderr, "== egl: _init_androidegl: 1: getenv(LIBEGL)=%s\n", getenv("LIBEGL") ? getenv("LIBEGL") : "n/a");
 	egl_handle = (void *) android_dlopen(getenv("LIBEGL") ? getenv("LIBEGL") : "libEGL.so", RTLD_LAZY);
+	fprintf(stderr, "== egl: _init_androidegl: 2: getenv(LIBGLESV2)=%s\n", getenv("LIBGLESV2") ? getenv("LIBGLESV2") : "n/a");
 	glesv2_handle = (void *) android_dlopen(getenv("LIBGLESV2") ? getenv("LIBGLESV2") : "libGLESv2.so", RTLD_LAZY);
+	fprintf(stderr, "== egl: _init_androidegl: 3\n");
 }
 
 static inline void hybris_egl_initialize()
 {
+	fprintf(stderr, "== egl: hybris_egl_initialize: 1\n");
 	_init_androidegl();
+	fprintf(stderr, "== egl: hybris_egl_initialize: 2\n");
 }
 
 static inline void hybris_glesv2_initialize()
 {
+	fprintf(stderr, "== egl: hybris_glesv2_initialize: 1\n");
 	_init_androidegl();
+	fprintf(stderr, "== egl: hybris_glesv2_initialize: 2\n");
 }
 
 static void * _android_egl_dlsym(const char *symbol)
