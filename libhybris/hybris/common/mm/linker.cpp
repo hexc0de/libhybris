@@ -1546,14 +1546,21 @@ static bool find_libraries(soinfo* start_with, const char* const library_names[]
       size_t library_names_count, soinfo* soinfos[], std::vector<soinfo*>* ld_preloads,
       size_t ld_preloads_count, int rtld_flags, const android_dlextinfo* extinfo) {
   // Step 0: prepare.
+  fprintf(stderr, "== linker: find_libraries: 1\n");
   LoadTaskList load_tasks;
+  fprintf(stderr, "== linker: find_libraries: 2\n");
   for (size_t i = 0; i < library_names_count; ++i) {
+    fprintf(stderr, "== linker: find_libraries: 3:[%x]\n", ((unsigned int)i));
     const char* name = library_names[i];
+    fprintf(stderr, "== linker: find_libraries: 4:[%x]\n", ((unsigned int)i));
     load_tasks.push_back(LoadTask::create(name, start_with));
+    fprintf(stderr, "== linker: find_libraries: 5:[%x]\n", ((unsigned int)i));
   }
 
+  fprintf(stderr, "== linker: find_libraries: 6\n");
   // Construct global_group.
   soinfo::soinfo_list_t global_group = make_global_group();
+  fprintf(stderr, "== linker: find_libraries: 7\n");
 
   // If soinfos array is null allocate one on stack.
   // The array is needed in case of failure; for example
@@ -1563,24 +1570,35 @@ static bool find_libraries(soinfo* start_with, const char* const library_names[]
   // See also implementation of failure_guard below.
 
   if (soinfos == nullptr) {
+    fprintf(stderr, "== linker: find_libraries: 8\n");
     size_t soinfos_size = sizeof(soinfo*)*library_names_count;
+    fprintf(stderr, "== linker: find_libraries: 9\n");
     soinfos = reinterpret_cast<soinfo**>(alloca(soinfos_size));
+    fprintf(stderr, "== linker: find_libraries: 10\n");
     memset(soinfos, 0, soinfos_size);
+    fprintf(stderr, "== linker: find_libraries: 11\n");
   }
 
   // list of libraries to link - see step 2.
   size_t soinfos_count = 0;
+  fprintf(stderr, "== linker: find_libraries: 12\n");
 
   auto failure_guard = make_scope_guard([&]() {
+      fprintf(stderr, "== linker: find_libraries: 13\n");
     // Housekeeping
     load_tasks.for_each([] (LoadTask* t) {
+        fprintf(stderr, "== linker: find_libraries: 14\n");
       LoadTask::deleter(t);
     });
+      fprintf(stderr, "== linker: find_libraries: 15\n");
 
     for (size_t i = 0; i<soinfos_count; ++i) {
+      fprintf(stderr, "== linker: find_libraries: 16:[%x]\n", ((unsigned int)i));
       soinfo_unload(soinfos[i]);
+      fprintf(stderr, "== linker: find_libraries: 17:[%x]\n", ((unsigned int)i));
     }
   });
+  fprintf(stderr, "== linker: find_libraries: 18\n");
 
   // Step 1: load and pre-link all DT_NEEDED libraries in breadth first order.
   for (LoadTask::unique_ptr task(load_tasks.pop_front());
@@ -1616,6 +1634,7 @@ static bool find_libraries(soinfo* start_with, const char* const library_names[]
       soinfos[soinfos_count++] = si;
     }
   }
+  fprintf(stderr, "== linker: find_libraries: 19\n");
 
   // Step 2: link libraries.
   soinfo::soinfo_list_t local_group;
@@ -1627,10 +1646,12 @@ static bool find_libraries(soinfo* start_with, const char* const library_names[]
     local_group.push_back(si);
     return true;
   });
+  fprintf(stderr, "== linker: find_libraries: 20\n");
 
   // We need to increment ref_count in case
   // the root of the local group was not linked.
   bool was_local_group_root_linked = local_group.front()->is_linked();
+  fprintf(stderr, "== linker: find_libraries: 21\n");
 
   bool linked = local_group.visit([&](soinfo* si) {
     if (!si->is_linked()) {
@@ -1644,11 +1665,15 @@ static bool find_libraries(soinfo* start_with, const char* const library_names[]
   });
 
   if (linked) {
+    fprintf(stderr, "== linker: find_libraries: 22\n");
     failure_guard.disable();
+    fprintf(stderr, "== linker: find_libraries: 23\n");
   }
 
   if (!was_local_group_root_linked) {
+    fprintf(stderr, "== linker: find_libraries: 24\n");
     local_group.front()->increment_ref_count();
+    fprintf(stderr, "== linker: find_libraries: 25\n");
   }
 
   return linked;
@@ -1657,11 +1682,15 @@ static bool find_libraries(soinfo* start_with, const char* const library_names[]
 static soinfo* find_library(const char* name, int rtld_flags, const android_dlextinfo* extinfo) {
   soinfo* si;
 
+  fprintf(stderr, "== linker: find_library: 1\n");
   if (name == nullptr) {
+    fprintf(stderr, "== linker: find_library: 2\n");
     si = somain;
   } else if (!find_libraries(nullptr, &name, 1, &si, nullptr, 0, rtld_flags, extinfo)) {
+    fprintf(stderr, "== linker: find_library: 3\n");
     return nullptr;
   }
+  fprintf(stderr, "== linker: find_library: 4\n");
 
   return si;
 }
@@ -1784,28 +1813,41 @@ void do_android_update_LD_LIBRARY_PATH(const char* ld_library_path) {
 }
 
 soinfo* do_dlopen(const char* name, int flags, const android_dlextinfo* extinfo) {
+  fprintf(stderr, "== linker: do_dlopen: 1\n");
   if ((flags & ~(RTLD_NOW|RTLD_LAZY|RTLD_LOCAL|RTLD_GLOBAL|RTLD_NODELETE|RTLD_NOLOAD)) != 0) {
+    fprintf(stderr, "== linker: do_dlopen: 2: invalid flags\n");
     DL_ERR("invalid flags to dlopen: %x", flags);
     return nullptr;
   }
+  fprintf(stderr, "== linker: do_dlopen: 3\n");
   if (extinfo != nullptr) {
+    fprintf(stderr, "== linker: do_dlopen: 4\n");
     if ((extinfo->flags & ~(ANDROID_DLEXT_VALID_FLAG_BITS)) != 0) {
+      fprintf(stderr, "== linker: do_dlopen: 5: invalid extended flags\n");
       DL_ERR("invalid extended flags to android_dlopen_ext: 0x%" PRIx64, extinfo->flags);
       return nullptr;
     }
+    fprintf(stderr, "== linker: do_dlopen: 6\n");
     if ((extinfo->flags & ANDROID_DLEXT_USE_LIBRARY_FD) == 0 &&
         (extinfo->flags & ANDROID_DLEXT_USE_LIBRARY_FD_OFFSET) != 0) {
+      fprintf(stderr, "== linker: do_dlopen: 7: invalid extended flags combo\n");
       DL_ERR("invalid extended flag combination (ANDROID_DLEXT_USE_LIBRARY_FD_OFFSET without "
           "ANDROID_DLEXT_USE_LIBRARY_FD): 0x%" PRIx64, extinfo->flags);
       return nullptr;
     }
   }
 
+  fprintf(stderr, "== linker: do_dlopen: 8\n");
   ProtectedDataGuard guard;
+  fprintf(stderr, "== linker: do_dlopen: 9\n");
   reset_g_active_shim_libs();
+  fprintf(stderr, "== linker: do_dlopen: 10\n");
   soinfo* si = find_library(name, flags, extinfo);
+  fprintf(stderr, "== linker: do_dlopen: 11\n");
   if (si != nullptr) {
+    fprintf(stderr, "== linker: do_dlopen: 12\n");
     si->call_constructors();
+    fprintf(stderr, "== linker: do_dlopen: 13\n");
   }
   return si;
 }
